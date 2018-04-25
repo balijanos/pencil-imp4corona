@@ -458,7 +458,7 @@ function makePages(pages, projectName, outDir, tmpDir)
     
   end
   if #resourceRef>0 then
-    lfs.mkdir("refs")
+    lfs.mkdir(outDir.."/refs")
     for k,v in pairs(resourceRef) do
       copyfile(tmpDir.."/"..v, outDir.."/"..v)
     end
