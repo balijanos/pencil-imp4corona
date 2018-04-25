@@ -4,7 +4,8 @@ Pencil UI design importer for Corona Sdk
 
 ## Installing Corona Sdk stencils for Evolus Pencil
 Download the latest version (3.0.4) for [Pencil](https://pencil.evolus.vn/)
-* Select "Tools/Manage Collections" from menu. Click on the "Install from file" button and locate the stencil file CoronaSdk-Pencil-Stencils-v1.0.
+* Select "Tools/Manage Collections" from menu. 
+* Click on the "Install from file" button and locate the stencil file CoronaSdk-Pencil-Stencils-v1.0.
 * Open the sample design from "epz" folder.
 
 ### Tip
