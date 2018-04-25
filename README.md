@@ -24,7 +24,7 @@ display.setDefault( "background", 1,1,1,1 )
 
 ## Generating and running UI design
 Execute Pimp project with Corona Simulator.
-Pimp will export generated files to `exportDir`. After generation finshed the program executes the **first page** of the UI design pages.
+* Pimp will export generated files to `exportDir`. After generation finshed the program executes the **first page** of the UI design pages.
 ```
 local function pimpDone(prjName, startPage)
   pimpCore.setDir(exportDir)
@@ -50,7 +50,7 @@ export\
   ...
 ```
 The files named 'pageName.lua' very simple scene templates which are can be modified by the user while once generated never will be overwritten.
-The files staring with 'pimp_' are core UI desing container files and always will be replaced if the 'pimp.import' called.
+* The files staring with 'pimp_' are core UI desing container files and always will be replaced if the 'pimp.import' called.
 
 ### Using generated Corona objects
 Generated scene template is very simple:
