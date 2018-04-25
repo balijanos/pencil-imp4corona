@@ -1,0 +1,40 @@
+--
+-- For more information on build.settings see the Project Build Settings Guide at:
+-- http://docs.coronalabs.com/guide/distribution/buildSettings/index.html
+--
+
+settings =
+{
+	orientation =
+	{
+		default = "portrait",
+		supported = { "portrait" }
+	},
+  android =
+  {
+      usesPermissions =
+      {
+          "android.permission.WRITE_EXTERNAL_STORAGE",
+      },
+      usesFeatures =
+      {
+      },
+  },
+	iphone =
+	{
+		xcassets = "Images.xcassets",
+		plist =
+		{
+			UILaunchStoryboardName = "LaunchScreen",
+		},
+	},
+	window =
+	{
+		defaultViewWidth = 360,
+		defaultViewHeight = 640,
+	},
+	
+  plugins = {
+    ["plugin.zip"] = { publisherId = "com.coronalabs" },
+	},
+}
