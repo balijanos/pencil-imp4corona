@@ -3,17 +3,17 @@ Pencil UI design importer for Corona Sdk
 
 
 ## Installing Corona Sdk stencils for Evolus Pencil
-Download latest version (3.0.4) for [Pencil](https://pencil.evolus.vn/)
-Select "Tools/Manage Collections" from menu. Click on "Install from file" button and locate the stencil file CoronaSdk-Pencil-Stencils-v1.0.
-Open sample design from "epz" folder.
+Download the latest version (3.0.4) for [Pencil](https://pencil.evolus.vn/)
+* Select "Tools/Manage Collections" from menu. Click on the "Install from file" button and locate the stencil file CoronaSdk-Pencil-Stencils-v1.0.
+* Open the sample design from "epz" folder.
 
 ### Tip
-If the design contains a page named 'Icon' Pimp will not import the page layout only the images on the page as icons... 
-These files are usefuls for building your own project using Pimp generated files.
+If the design contains page named 'Icon', Pimp will not import the page layout, only the images on the page as icons... 
+* These files are usefuls for building your own project using Pimp generated files.
 
 
 ## Preparing Pimp for import
-To change current configuration modify the `main.lua` file
+To change the current configuration modify the `main.lua` file
 
 main.lua:
 ```
@@ -49,7 +49,7 @@ export\
   Icon_128x128.png
   ...
 ```
-The files named 'pageName.lua' are very simple scene templates which are can be modified by the user while once generated never will be overwritten.
+The files named 'pageName.lua' very simple scene templates which are can be modified by the user while once generated never will be overwritten.
 The files staring with 'pimp_' are core UI desing container files and always will be replaced if the 'pimp.import' called.
 
 ### Using generated Corona objects
