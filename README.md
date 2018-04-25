@@ -1,4 +1,4 @@
-# pimp-v1.0
+# pencil-imp4corona v1.0
 Pencil UI design importer for Corona Sdk
 
 
@@ -9,11 +9,11 @@ Download the latest version (3.0.4) for [Pencil](https://pencil.evolus.vn/)
 * Open the sample design from "epz" folder.
 
 ### Tip
-If the design contains page named 'Icon', Pimp will not import the page layout, only the images on the page as icons... 
-These files are usefuls for building your own project using Pimp generated files.
+If the design contains page named 'Icon', the importer will not import the page layout, only the images on the page as icons... 
+These files are usefuls for building your own project using the generated files.
 
 
-## Preparing Pimp for import
+## Preparing the import
 To change the current configuration modify the `main.lua` file
 
 main.lua:
@@ -24,8 +24,8 @@ display.setDefault( "background", 1,1,1,1 )
 ```
 
 ## Generating and running UI design
-Execute Pimp project with Corona Simulator.
-Pimp will export generated files to `exportDir`. After generation finshed the program executes the **first page** of the UI design pages.
+Execute the project with Corona Simulator.
+The program will export generated files to `exportDir`. After generation finshed the program executes the **first page** of the UI design pages.
 ```
 local function pimpDone(prjName, startPage)
   pimpCore.setDir(exportDir)
