@@ -48,8 +48,6 @@ export\
   Icon.png
   Icon_128x128.png
   ...
-end
-pimp.import(importFile, exportDir, pimpDone)
 ```
 The files named 'pageName.lua' are very simple scene templates which are can be modified by the user while once generated never will be overwritten.
 The files staring with 'pimp_' are core UI desing container files and always will be replaced if the 'pimp.import' called.
@@ -66,3 +64,15 @@ function scene:create(event)
   local objects = pimp.getSceneObjects(event,sceneGroup)
 end
 ```
+To access object just use the assigned Corona variable name on the Pencil interface.
+```
+function scene:create(event)
+  local sceneGroup = self.view
+  local objects = pimp.getSceneObjects(event,sceneGroup)
+  objects["My_Spinner"]:start()
+end
+```
+
+![shell](./pencil_sshots/p01.png)
+![shell](./pencil_sshots/p02.png)
+![shell](./pencil_sshots/p03.png)
