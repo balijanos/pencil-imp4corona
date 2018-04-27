@@ -77,3 +77,12 @@ end
 ![shell](./pencil_sshots/p01.png)
 ![shell](./pencil_sshots/p02.png)
 ![shell](./pencil_sshots/p03.png)
+
+##Coming soon
+Native objects handling as objects (TextField, TextBox, WebView, MapView)
+
+Running on an Android phone...
+![shell](./pencil_sshots/Screenshot_phone_small.png)
+
+this design 
+![shell](./pencil_sshots/pencil_sshot.png)
