@@ -6,6 +6,8 @@
 -- 
 -- Author: Janos Bali
 --
+-- version v1.1
+--
 local zip = require "plugin.zip"
 local lfs = require "lfs"
 local xml = require "pimp.xml"
