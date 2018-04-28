@@ -11,15 +11,21 @@ settings =
 		supported = { "portrait" }
 	},
   android =
-  {
-      usesPermissions =
-      {
-          "android.permission.WRITE_EXTERNAL_STORAGE",
-      },
-      usesFeatures =
-      {
-      },
-  },
+    {
+        usesPermissions =
+        {
+            "android.permission.INTERNET",
+            "android.permission.ACCESS_FINE_LOCATION",
+            "android.permission.ACCESS_COARSE_LOCATION",
+            "android.permission.WRITE_EXTERNAL_STORAGE",
+        },
+        usesFeatures =
+        {
+            { name = "android.hardware.location", required = false },
+            { name = "android.hardware.location.gps", required = false },
+            { name = "android.hardware.location.network", required = false }
+        },
+    },
 	iphone =
 	{
 		xcassets = "Images.xcassets",

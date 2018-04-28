@@ -179,5 +179,27 @@ function cbPencilCore.newTabBar(opt)
   return obj
 end
 
+-- Generic widgets handlers
+local genericWidgets = {
+  ["newTextField"] = "widget.newTextField",
+  ["newTextBox"] = "widget.newTextBox",
+  ["newWebView"] = "widget.newWebView",
+  ["newMapView"] = "widget.newMapView",
+}
+
+function cbPencilCore.newGenericObject(opt)
+  opt.x = opt.x + opt.width/2
+  opt.y = opt.y + opt.height/2
+  if genericWidgets[opt.genericType] then
+    local gw = require (genericWidgets[opt.genericType])
+    local obj = gw(opt)
+    if opt.sceneGroup then
+      opt.sceneGroup:insert(obj)
+    end
+    return obj
+  end
+  return {}
+end
+
 
 return cbPencilCore

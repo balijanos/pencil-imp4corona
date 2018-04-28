@@ -1,5 +1,32 @@
-# pencil-imp4corona v1.0
+# pencil-imp4corona v1.1
 Pencil UI design importer for Corona Sdk
+
+![shell](./pencil_sshots/Screenshot_phone_small.png)
+
+## Supported widgets
+Implemented elements:
+
+* Rect (RoundedRect)
+* Circle
+* Text
+* Button
+* Spinner
+* Image
+* Switch (CheckBox,Radio)
+* Slider
+* ProgressBar
+* Tabbar
+
+non standard Corona SDK elements
+* MaterialIcon (newText with Material Icon font set)
+* MaterialTab (newTabbar with Material Icon font set)
+ 
+Native objects:
+
+* TextField
+* TextBox
+* WebView
+* MapView
 
 
 ## Installing Corona Sdk stencils for Evolus Pencil
@@ -7,6 +34,8 @@ Download the latest version (3.0.4) for [Pencil](https://pencil.evolus.vn/)
 * Select "Tools/Manage Collections" from menu. 
 * Click on the "Install from file" button and locate the stencil file CoronaSdk-Pencil-Stencils-v1.0.
 * Open the sample design from "epz" folder.
+
+You'll need also "MaterialIcons" font for Material Icons based objects (MaterialIcon, MaterialTabBar).
 
 ### Tip
 If the design contains page named 'Icon', the importer will not import the page layout, only the images on the page as icons... 
@@ -33,7 +62,17 @@ local function pimpDone(prjName, startPage)
 end
 pimp.import(importFile, exportDir, pimpDone)
 ```
+If you want make the release from imported and generated files, you can do it simple.
+```
+local composer = require "composer"
+local pimpCore = require "pimp.pimpCore"
 
+-- directory of generated files
+pimpCore.setDir("myapp")
+	
+-- start a scene
+composer.gotoScene("myapp.AppMenu")	
+```
 ## Modifying exported files
 After the first execution the export directory will be created and filled with sources generated prom page layouts.
 ```
@@ -77,15 +116,4 @@ end
 ![shell](./pencil_sshots/p01.png)
 ![shell](./pencil_sshots/p02.png)
 ![shell](./pencil_sshots/p03.png)
-
-## Coming soon
-Native objects handling as objects (TextField, TextBox, WebView, MapView)
-
-Running on an Android phone...
-
-![shell](./pencil_sshots/Screenshot_phone_small.png)
-
-
-this design 
-
 ![shell](./pencil_sshots/pencil_sshot.png)

@@ -6,6 +6,10 @@
 -- 
 -- Author: Janos Bali
 --
+-- 1.1 : 
+--  added generic object
+--  align property for newText added
+--
 local lfs = require "lfs"
 require "pimp.putil"
 
@@ -96,7 +100,8 @@ local function getFontParams(fStyle)
     fName = "native.systemFontBold"
   end
   local fSize = string.gsub(fStyle["font-size"],"px","")
-  return fName, fSize
+  local fAlign = fStyle["text-align"]
+  return fName, fSize, fAlign
 end
 
 local function getListItems(s,specChar)
@@ -397,6 +402,79 @@ local function doTabBar(t)
   return butTable..objStr
 end
 
+local function doGeneric(t)
+  local trf = getTransform(t)
+  -- local style = getStyle(t[2].rect.style)
+  local strokeStyle = t[1].strokeStyle:split("|")
+  
+  local fontStyle
+  -- todo fix 
+  if t[5] == nil then
+    fontStyle = getStyle(t[4].properties.style)
+  else
+    fontStyle = getStyle(t[5].properties.style)
+  end
+
+  local w = t[1].box:split(",")
+  local fn,fs,ta = getFontParams(fontStyle)
+  
+  local varType = t[1].varType
+  
+  local hasText = (t[1].hasText=="true")
+  local hasRect = (t[1].hasRect=="true")
+  local hasOverColors = (t[1].hasOverColors=="true")
+  local hasUdfOpt = (t[1].udfOpt=="true")
+  
+  local objStr, varName = beginObject(t, "newGenericObject")
+  objStr = objStr..string.format("\tgenericType = \"%s\",\n", varType )
+  objStr = objStr..string.format("\thasText = %s,\n", tostring(hasText) )
+  objStr = objStr..string.format("\thasRect = %s,\n", tostring(hasRect) )
+  objStr = objStr..string.format("\thasOverColors = %s,\n", tostring(hasOverColors) )
+  
+  objStr = objStr..string.format("\tx = %s,\n", trf[5])
+  objStr = objStr..string.format("\ty = %s,\n", trf[6])
+  objStr = objStr..string.format("\twidth = %s,\n", w[1])
+  objStr = objStr..string.format("\theight = %s,\n", w[2])
+  
+  if hasRect then
+    objStr = objStr..string.format("\tstrokeWidth = %s,\n", strokeStyle[1])
+  end
+  if hasText then
+    objStr = objStr..string.format("\ttext = [[%s]],\n", t[1].label)
+    objStr = objStr..string.format("\tfont = %s,\n", fn )
+    objStr = objStr..string.format("\tfontSize = %s,\n", fs )
+    objStr = objStr..string.format("\talign= \"%s\",\n", ta or "center" )
+  end
+  
+  if hasOverColors then
+    if hasRect then
+      objStr = objStr..string.format("\tstrokeColor  = { default={%s}, over={%s} },\n",
+          getColorString(t[1].strokeColor), getColorString(t[1].strokeOverColor) )
+      objStr = objStr..string.format("\tfillColor = { default={%s}, over={%s} },\n",
+          getColorString(t[1].fillColor), getColorString(t[1].fillOverColor) )
+    end
+    if hasText then
+      objStr = objStr..string.format("\ttextColor  = { default={%s}, over={%s} },\n",
+          getColorString(t[1].textColor), getColorString(t[1].textOverColor) )
+    end
+  else
+    if hasRect then
+      objStr = objStr..string.format("\tfillColor = { %s},\n", getColorString(t[1].fillColor) )
+      objStr = objStr..string.format("\tstrokeColor = { %s},\n", getColorString(t[1].strokeColor) )
+    end
+    if hasText then
+      objStr = objStr..string.format("\ttextColor = { %s},\n", getColorString(t[1].textColor) )
+    end
+  end
+  if hasUdfOpt then
+    -- TODO parse for test
+    objStr = objStr..string.format("\t%s\n", t[1].udfOptions)
+  end
+  objStr = objStr..endObject(t, varName)
+  
+  return objStr
+end
+
 ------------------------------------------------------------------------
 
 local objects = {
@@ -415,6 +493,9 @@ local objects = {
 	["corona:ProgressBar"] = doProgress,
   ["corona:MaterialTab"] = doTabBar,
 	["corona:Tabbar"] = doTabBar,
+  
+  ["corona:Generic"] = doGeneric,
+
 }
 
 local function isMaterialIcon(def)
@@ -435,7 +516,7 @@ function makePages(pages, projectName, outDir, tmpDir)
       elseif objects[v.def] and type(objects[v.def])=="function" then
         table.insert(sSrc, objects[v.def](v))
       else
-        print("N/A", v.def)
+        print("N/A", v.def, v[1].varType)
       end
     end
     

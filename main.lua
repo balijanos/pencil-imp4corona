@@ -9,19 +9,18 @@
 -- Author: Janos Bali
 --
 
--- local importFile = "epz/corona_v1.epz"
-local importFile = "epz/scene_test.epz"
+local importFile = "epz/DesignTest.epz"
+local exportDir = "export" 
+display.setDefault( "background", 1,1,1,1 )	
 --------------------------------------
 local pimp = require "pimp.pimp"
 local pimpCore = require "pimp.pimpCore"
 local composer = require "composer"
-local exportDir = "export" 
 
 local function pimpDone(prjName, startPage)
+  print(prjName, startPage)
   pimpCore.setDir(exportDir)
   composer.gotoScene(exportDir.."."..startPage)
 end
 
-display.setStatusBar( display.DefaultStatusBar )
-display.setDefault( "background", 1,1,1,1 )	
 pimp.import(importFile, exportDir, pimpDone)
