@@ -1,5 +1,5 @@
 # pencil-imp4corona v1.1
-Pencil UI design importer for Corona Sdk
+Pencil UI design importer and scene generator for Corona Sdk
 
 ![shell](./pencil_sshots/Screenshot_phone_small.png)
 
@@ -92,31 +92,47 @@ export\
 The files named 'pageName.lua' very simple scene templates which are can be modified by the user while once generated never will be overwritten.
 The files staring with 'pimp_' are core UI desing container files and always will be replaced if the 'pimp.import' called.
 
-### Using generated Corona objects
+## Using generated Corona scenes
 Generated scene template is very simple:
 ```
-local pimp = require "export.pimp_FirstScene"
+local pimp = require "export.pimp_Page01"
+local pimpCore = require "pimp.pimpCore"
 local composer = require "composer"
 local scene = composer.newScene()
 
+local sceneObjects
+local objectOptions
+
 function scene:create(event)
   local sceneGroup = self.view
-  
-  -- render design elements
-  local objects = pimp.getSceneObjects(event,sceneGroup)
+  sceneObjects = pimp.getSceneObjects(event,sceneGroup)
+  objectOptions = pimp.getObjectOptions()
 end
+...
 ```
+
 To access object just use the assigned Corona variable name on the Pencil interface.
 ```
-function scene:create(event)
+  -- using the generated object
+  sceneObjects["My_Spinner"]:start()
+```
+
+The generated scene can be modified freely. At show/hide processes native objects will be automatically handled.
+```
+function scene:show(event)
   local sceneGroup = self.view
-  
-  -- render design elements
-  local objects = pimp.getSceneObjects(event,sceneGroup)
-  
-  -- use generated object
-  objects["My_Spinner"]:start()
+  if event.phase=="did" then
+    pimpCore.showNativeObjects(sceneObjects,objectOptions)
+  end
 end
+
+function scene:hide(event)
+  local sceneGroup = self.view
+  if event.phase=="did" then
+    pimpCore.hideNativeObjects(sceneObjects,objectOptions)
+  end
+end
+
 ```
 
 ## Designing layouts with Pencil
