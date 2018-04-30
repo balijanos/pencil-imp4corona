@@ -151,6 +151,5 @@ end
 
 
 ## Pencil UI designer screenShots
-![shell](./pencil_sshots/p01.png)
 ![shell](./pencil_sshots/p02.png)
 ![shell](./pencil_sshots/p03.png)
