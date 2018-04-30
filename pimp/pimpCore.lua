@@ -20,6 +20,20 @@ local composer = require "composer"
 mFont = "icon-font/MaterialIcons-Regular.ttf"
 mIcon = require("icon-font.codepoints")
 
+local function optCopy(orig)
+    local orig_type = type(orig)
+    local copy
+    if orig_type == 'table' then
+        copy = {}
+        for orig_key, orig_value in pairs(orig) do
+            copy[orig_key] = orig_value
+        end
+    else 
+        copy = orig
+    end
+    return copy
+end
+
 local cbPencilCore = {}
 
 local pimpDir = ""
@@ -28,8 +42,9 @@ function cbPencilCore.setDir(dirName)
   pimpDir = dirName
 end
 
-function cbPencilCore.newRect(opt)
+function cbPencilCore.newRect(options)
   local obj
+  local opt = optCopy(options)
   if opt.cornerRadius == 0 then
     obj = display.newRect(opt.x + opt.width/2, opt.y + opt.height/2, opt.width, opt.height)
   else
@@ -44,8 +59,9 @@ function cbPencilCore.newRect(opt)
   return obj
 end
 
-function cbPencilCore.newCircle(opt)
+function cbPencilCore.newCircle(options)
   local obj
+  local opt = optCopy(options)
   obj = display.newCircle(opt.x + opt.radius, opt.y + opt.radius, opt.radius)
   obj.strokeWidth = opt.strokeWidth
   obj:setFillColor(unpack(opt.fillColor))
@@ -56,8 +72,9 @@ function cbPencilCore.newCircle(opt)
   return obj
 end
 
-function cbPencilCore.newText(opt)
+function cbPencilCore.newText(options)
   local obj
+  local opt = optCopy(options)
   obj = display.newText(opt)
   obj.x = obj.x + obj.width/2
   obj.y = obj.y + obj.height/2
@@ -68,8 +85,9 @@ function cbPencilCore.newText(opt)
   return obj
 end
 
-function cbPencilCore.newMaterialIcon(opt)
+function cbPencilCore.newMaterialIcon(options)
   local obj
+  local opt = optCopy(options)
   obj = display.newText(opt)
   obj.x = obj.x + obj.width/2
   obj.y = obj.y + obj.height/2
@@ -90,8 +108,9 @@ function cbPencilCore.newMaterialIcon(opt)
   return obj
 end
 
-function cbPencilCore.newButton(opt)
+function cbPencilCore.newButton(options)
   local obj
+  local opt = optCopy(options)
   opt.x = opt.x + opt.width/2
   opt.y = opt.y + opt.height/2
   obj = widget.newButton(opt)
@@ -111,8 +130,9 @@ function cbPencilCore.newButton(opt)
   return obj
 end
 
-function cbPencilCore.newSpinner(opt)
+function cbPencilCore.newSpinner(options)
   local obj
+  local opt = optCopy(options)
   opt.x = opt.x + opt.width/2
   opt.y = opt.y + opt.height/2
   obj = widget.newSpinner(opt)
@@ -122,8 +142,9 @@ function cbPencilCore.newSpinner(opt)
   return obj
 end
 
-function cbPencilCore.newImageRect(opt)
+function cbPencilCore.newImageRect(options)
   local obj
+  local opt = optCopy(options)
   opt.image = pimpDir.."/"..opt.image
   obj = display.newImageRect(opt.image,system.ResourceDirectory,opt.width,opt.height)
   obj.x = opt.x + opt.width/2
@@ -134,8 +155,9 @@ function cbPencilCore.newImageRect(opt)
   return obj
 end
 
-function cbPencilCore.newSwitch(opt)
+function cbPencilCore.newSwitch(options)
   local obj
+  local opt = optCopy(options)
   opt.x = opt.x + opt.width/2
   opt.y = opt.y + opt.height/2
   obj = widget.newSwitch(opt)
@@ -145,8 +167,9 @@ function cbPencilCore.newSwitch(opt)
   return obj
 end
 
-function cbPencilCore.newSlider(opt)
+function cbPencilCore.newSlider(options)
   local obj
+  local opt = optCopy(options)
   opt.x = opt.x + opt.width/2
   opt.y = opt.y + opt.height/2
   obj = widget.newSlider(opt)
@@ -156,8 +179,9 @@ function cbPencilCore.newSlider(opt)
   return obj
 end
 
-function cbPencilCore.newProgressView(opt)
+function cbPencilCore.newProgressView(options)
   local obj
+  local opt = optCopy(options)
   opt.x = opt.x + opt.width/2
   opt.y = opt.y + opt.height/2
   obj = widget.newProgressView(opt)
@@ -168,8 +192,9 @@ function cbPencilCore.newProgressView(opt)
   return obj
 end
 
-function cbPencilCore.newTabBar(opt)
+function cbPencilCore.newTabBar(options)
   local obj
+  local opt = optCopy(options)
   opt.left = opt.left
   opt.top = opt.top
   obj = widget.newTabBar(opt)
@@ -187,7 +212,8 @@ local genericWidgets = {
   ["newMapView"] = "widget.newMapView",
 }
 
-function cbPencilCore.newGenericObject(opt)
+function cbPencilCore.newGenericObject(options)
+  local opt = optCopy(options)
   opt.x = opt.x + opt.width/2
   opt.y = opt.y + opt.height/2
   if genericWidgets[opt.genericType] then
@@ -201,5 +227,24 @@ function cbPencilCore.newGenericObject(opt)
   return {}
 end
 
+-- native show/hide
+function cbPencilCore.showNativeObjects(sceneObjects,objectOptions)
+  for o,opt in pairs(objectOptions) do
+    if opt.genericType then
+      sceneObjects[o].isVisible = objectOptions[o].isVisible
+    end
+  end
+end
+
+function cbPencilCore.hideNativeObjects(sceneObjects,objectOptions)
+  local any
+  for o,opt in pairs(objectOptions) do
+    if opt.genericType then
+      sceneObjects[o].isVisible = false
+      any = true
+    end
+  end
+  if any then native.setKeyboardFocus(nil) end
+end
 
 return cbPencilCore

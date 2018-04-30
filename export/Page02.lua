@@ -6,7 +6,7 @@
 -- Author: Janos Bali
 --
 --
-local pimp = require "export.pimp_Page01"
+local pimp = require "export.pimp_Page02"
 local pimpCore = require "pimp.pimpCore"
 local composer = require "composer"
 local scene = composer.newScene()

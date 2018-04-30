@@ -1,9 +1,8 @@
 local newTextBox = function(opt)
   
-  local group = display.newGroup()
-  
   -- input field background
   if opt.hasRect then 
+    _=[[
     local inputBackground = display.newRect(  
       opt.x, 
       opt.y,
@@ -13,7 +12,7 @@ local newTextBox = function(opt)
     inputBackground:setFillColor( unpack(opt.fillColor) )
     inputBackground:setStrokeColor( unpack(opt.strokeColor) )
     inputBackground.strokeWidth = opt.strokeWidth
-    group:insert( inputBackground )
+    ]]
   end
   
   -- native.textfield
@@ -33,9 +32,7 @@ local newTextBox = function(opt)
   
   textBox:setTextColor(unpack(opt.textColor))
   
-  group:insert( textBox )
-  
-  return group
+  return textBox, inputBackground
 end
 
 return newTextBox

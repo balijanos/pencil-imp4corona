@@ -5,62 +5,20 @@
 -- 
 -- Author: Janos Bali
 --
+--
 local pimpCore = require "pimp.pimpCore"
 local m={}
+local objectOptions = {}
+function m.getObjectOptions()
+  return objectOptions
+end
 function m.getSceneObjects(event,sceneGroup)
-  local obj
+  local opt, obj
   local sceneObjects = {}
   
-	obj = pimpCore.newRect {
-	id = "designRect",
-	x = 0,
-	y = 48,
-	width = 720,
-	height = 80,
-	cornerRadius = 0,
-	strokeWidth = 0,
-	fillColor = {1,1,0.8,0.47843137254902},
-	strokeColor = {0,0,0,0},
-	sceneGroup = sceneGroup,
-	reference = nil,
-	}
-	sceneObjects["designRect"] = obj
-	obj.isVisible = true
-
-	obj = pimpCore.newMaterialIcon {
-	id = "My_MaterialIcon",
-	text = mIcon.get("info_outline"),
-	x = 23,
-	y = 64,
-	width = 48,
-	height = 48,
-	font = mFont,
-	fontSize = 48,
-	fillColor = {0.34509803921569,0.50196078431373,0.8,0.47843137254902},
-	sceneGroup = sceneGroup,
-	reference = nil,
-	}
-	sceneObjects["My_MaterialIcon"] = obj
-	obj.isVisible = true
-
-	obj = pimpCore.newMaterialIcon {
-	id = "My_MaterialIcon2",
-	text = mIcon.get("menu"),
-	x = 650,
-	y = 64,
-	width = 48,
-	height = 48,
-	font = mFont,
-	fontSize = 48,
-	fillColor = {0.34509803921569,0.50196078431373,0.8,0.47843137254902},
-	sceneGroup = sceneGroup,
-	reference = nil,
-	}
-	sceneObjects["My_MaterialIcon2"] = obj
-	obj.isVisible = true
-
-	obj = pimpCore.newButton {
+	objectOptions["My_Button"] = {
 	id = "My_Button",
+	isVisible = true,
 	label = "Submit",
 	shape = "roundedRect",
 	cornerRadius = 16,
@@ -75,13 +33,15 @@ function m.getSceneObjects(event,sceneGroup)
 	fillColor = { default={0.34509803921569,0.50196078431373,0.8,0}, over={0,0,0,0.12156862745098} },
 	strokeColor  = { default={0.34509803921569,0.50196078431373,0.8,0.47843137254902}, over={0,0,0,0.058823529411765} },
 	sceneGroup = sceneGroup,
-	reference = nil,
+	reference = "Page02",
 	}
+	obj = pimpCore.newButton (objectOptions["My_Button"])
 	sceneObjects["My_Button"] = obj
 	obj.isVisible = true
 
-	obj = pimpCore.newGenericObject {
-	id = "My_Widget",
+	objectOptions["emailInput"] = {
+	id = "emailInput",
+	isVisible = true,
 	genericType = "newTextField",
 	hasText = true,
 	hasRect = true,
@@ -101,65 +61,55 @@ function m.getSceneObjects(event,sceneGroup)
 	sceneGroup = sceneGroup,
 	reference = nil,
 	}
-	sceneObjects["My_Widget"] = obj
+	obj = pimpCore.newGenericObject (objectOptions["emailInput"])
+	sceneObjects["emailInput"] = obj
 	obj.isVisible = true
 
-	obj = pimpCore.newGenericObject {
-	id = "My_Widget2",
+	objectOptions["infoTextBox"] = {
+	id = "infoTextBox",
+	isVisible = true,
 	genericType = "newTextBox",
 	hasText = true,
-	hasRect = true,
+	hasRect = false,
 	hasOverColors = false,
 	x = 0,
 	y = 180,
 	width = 720,
 	height = 220,
-	strokeWidth = 0,
 	text = [[Shapes in a collection tend to have the same style such as same font, color, stroke style... To be convenient to stencil authors in this situation, Pencil supports grouping all shapes common style to collection style. These collection properties can be used as the default value for stencil properties. Then if collection style is changed, default property values for shapes will be changed accordingly. Have a look at this example. Collection properties are defined and then used in shape properties.]],
 	font = native.systemFont,
 	fontSize = 20,
-	align= "left",
-	fillColor = { 1,1,0.8,0},
-	strokeColor = { 0,0,0,0},
+	align= "center",
 	textColor = { 0.12941176470588,0.12941176470588,0.12941176470588,1},
-	isEditable = false,
-
 	sceneGroup = sceneGroup,
 	reference = nil,
 	}
-	sceneObjects["My_Widget2"] = obj
+	obj = pimpCore.newGenericObject (objectOptions["infoTextBox"])
+	sceneObjects["infoTextBox"] = obj
 	obj.isVisible = true
 
-	obj = pimpCore.newText {
+	objectOptions["My_Text"] = {
 	id = "My_Text",
-	text = "E-mail address",
-	x = 298,
-	y = 455,
+	isVisible = true,
+	text = "Enter your e-mail address:",
+	x = 0,
+	y = 450,
 	font = native.systemFont,
 	fontSize = 24,
 	fillColor = {1,0.54901960784314,0.23137254901961,0.92941176470588},
+	width = 720,
+	height = 27,
+	align= "center",
 	sceneGroup = sceneGroup,
 	reference = nil,
 	}
+	obj = pimpCore.newText (objectOptions["My_Text"])
 	sceneObjects["My_Text"] = obj
 	obj.isVisible = true
 
-	obj = pimpCore.newText {
-	id = "My_Text2",
-	text = "Application Title",
-	x = 251,
-	y = 70,
-	font = native.systemFont,
-	fontSize = 36,
-	fillColor = {0.34509803921569,0.50196078431373,0.8,0.47843137254902},
-	sceneGroup = sceneGroup,
-	reference = nil,
-	}
-	sceneObjects["My_Text2"] = obj
-	obj.isVisible = true
-
-	obj = pimpCore.newRect {
-	id = "designRect2",
+	objectOptions["designRect"] = {
+	id = "designRect",
+	isVisible = true,
 	x = 0,
 	y = 1200,
 	width = 720,
@@ -171,11 +121,13 @@ function m.getSceneObjects(event,sceneGroup)
 	sceneGroup = sceneGroup,
 	reference = nil,
 	}
-	sceneObjects["designRect2"] = obj
+	obj = pimpCore.newRect (objectOptions["designRect"])
+	sceneObjects["designRect"] = obj
 	obj.isVisible = true
 
-	obj = pimpCore.newGenericObject {
+	objectOptions["My_MapView"] = {
 	id = "My_MapView",
+	isVisible = true,
 	genericType = "newMapView",
 	hasText = false,
 	hasRect = false,
@@ -191,7 +143,100 @@ isZoomEnabled = true,
 	sceneGroup = sceneGroup,
 	reference = nil,
 	}
+	obj = pimpCore.newGenericObject (objectOptions["My_MapView"])
 	sceneObjects["My_MapView"] = obj
+	obj.isVisible = true
+
+	objectOptions["designRect2"] = {
+	id = "designRect2",
+	isVisible = true,
+	x = 0,
+	y = 48,
+	width = 720,
+	height = 80,
+	cornerRadius = 0,
+	strokeWidth = 0,
+	fillColor = {1,1,0.8,0.47843137254902},
+	strokeColor = {0,0,0,0},
+	sceneGroup = sceneGroup,
+	reference = nil,
+	}
+	obj = pimpCore.newRect (objectOptions["designRect2"])
+	sceneObjects["designRect2"] = obj
+	obj.isVisible = true
+
+	objectOptions["My_MaterialIcon"] = {
+	id = "My_MaterialIcon",
+	isVisible = true,
+	text = mIcon.get("info_outline"),
+	x = 23,
+	y = 64,
+	width = 48,
+	height = 48,
+	font = mFont,
+	fontSize = 48,
+	fillColor = {0.34509803921569,0.50196078431373,0.8,0.47843137254902},
+	sceneGroup = sceneGroup,
+	reference = nil,
+	}
+	obj = pimpCore.newMaterialIcon (objectOptions["My_MaterialIcon"])
+	sceneObjects["My_MaterialIcon"] = obj
+	obj.isVisible = true
+
+	objectOptions["My_MaterialIcon2"] = {
+	id = "My_MaterialIcon2",
+	isVisible = true,
+	text = mIcon.get("arrow_forward"),
+	x = 650,
+	y = 64,
+	width = 48,
+	height = 48,
+	font = mFont,
+	fontSize = 48,
+	fillColor = {0.34509803921569,0.50196078431373,0.8,0.47843137254902},
+	sceneGroup = sceneGroup,
+	reference = "Page02",
+	}
+	obj = pimpCore.newMaterialIcon (objectOptions["My_MaterialIcon2"])
+	sceneObjects["My_MaterialIcon2"] = obj
+	obj.isVisible = true
+
+	objectOptions["My_Text2"] = {
+	id = "My_Text2",
+	isVisible = true,
+	text = "Application Title",
+	x = 251,
+	y = 70,
+	font = native.systemFont,
+	fontSize = 36,
+	fillColor = {0.34509803921569,0.50196078431373,0.8,0.47843137254902},
+	width = 262,
+	height = 40,
+	align= "center",
+	sceneGroup = sceneGroup,
+	reference = nil,
+	}
+	obj = pimpCore.newText (objectOptions["My_Text2"])
+	sceneObjects["My_Text2"] = obj
+	obj.isVisible = true
+
+	objectOptions["My_Text3"] = {
+	id = "My_Text3",
+	isVisible = true,
+	text = "Forward",
+	x = 0,
+	y = 107,
+	font = native.systemFont,
+	fontSize = 24,
+	fillColor = {1,0.54901960784314,0.23137254901961,0.92941176470588},
+	width = 715,
+	height = 26,
+	align= "right",
+	sceneGroup = sceneGroup,
+	reference = nil,
+	}
+	obj = pimpCore.newText (objectOptions["My_Text3"])
+	sceneObjects["My_Text3"] = obj
 	obj.isVisible = true
 
   return sceneObjects

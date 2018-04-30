@@ -9,6 +9,7 @@
 -- 1.1 : 
 --  added generic object
 --  align property for newText added
+--  stored options for native/all objects
 --
 local lfs = require "lfs"
 require "pimp.putil"
@@ -23,18 +24,45 @@ local exportInfo = [[
 -- 
 -- Author: Janos Bali
 --
+--
 ]]
 
 local sceneTemplate = [[
+local pimpCore = require "pimp.pimpCore"
 local composer = require "composer"
 local scene = composer.newScene()
 
+local sceneObjects
+local objectOptions
+
 function scene:create(event)
   local sceneGroup = self.view
-  local objects = pimp.getSceneObjects(event,sceneGroup)
+  sceneObjects = pimp.getSceneObjects(event,sceneGroup)
+  objectOptions = pimp.getObjectOptions()
+end
+
+function scene:show(event)
+  local sceneGroup = self.view
+  if event.phase=="did" then
+    pimpCore.showNativeObjects(sceneObjects,objectOptions)
+  end
+end
+
+function scene:hide(event)
+  local sceneGroup = self.view
+  if event.phase=="did" then
+    pimpCore.hideNativeObjects(sceneObjects,objectOptions)
+  end
+end
+
+function scene:destroy( event )
+  local sceneGroup = self.view
 end
 
 scene:addEventListener( "create", scene )
+scene:addEventListener( "show", scene )
+scene:addEventListener( "hide", scene )
+scene:addEventListener( "destroy", scene )
 
 return scene
 ]]
@@ -42,8 +70,12 @@ return scene
 local template = [[
 local pimpCore = require "pimp.pimpCore"
 local m={}
+local objectOptions = {}
+function m.getObjectOptions()
+  return objectOptions
+end
 function m.getSceneObjects(event,sceneGroup)
-  local obj
+  local opt, obj
   local sceneObjects = {}
   
 ]]
@@ -92,6 +124,15 @@ local function getStyle(s)
     end
   end
   return style
+end
+
+local function getAlignment(s)
+  local al = s:split(",")
+  local hA = "left"
+  if al[1] == "1" then hA = "center" elseif  al[1] == "2" then hA = "right" end
+  local hV = "top"
+  if al[2] == "1" then hV = "middle" elseif  al[2] == "2" then hV = "bottom" end
+  return hA, hV
 end
 
 local function getFontParams(fStyle)
@@ -162,16 +203,18 @@ local function getIconImage(t)
   end
 end
 
-local function beginObject(t, cfunc)
+local function beginObject(t)
   local varName = getVarName(t)
-  local script =   string.format( "\tobj = pimpCore.%s {\n", cfunc)
+  local script =   string.format( "\tobjectOptions[\"%s\"] = {\n", varName )
   script = script..string.format( "\tid = \"%s\",\n", varName)
+  script = script..string.format( "\tisVisible = %s,\n", t[1].visible or "true" ) 
   return script, varName
 end
 
-local function endObject(t, varName)
+local function endObject(t, varName, cfunc )
   local script =   string.format( "\tsceneGroup = sceneGroup,\n" )
   script = script..string.format( "\treference = %s,\n\t}\n", getPageRef(t) )
+  script = script..string.format( "\tobj = pimpCore.%s (objectOptions[\"%s\"])\n", cfunc, varName)
   script = script..string.format( "\tsceneObjects[\"%s\"] = obj\n", varName) 
   script = script..string.format( "\tobj.isVisible = %s\n", t[1].visible or "true" ) 
   return script
@@ -183,7 +226,7 @@ local function doRect(t)
   local style = getStyle(t[2].rect.style)
   local wh = t[1].box:split(",")
   
-  local objStr, varName = beginObject(t, "newRect")
+  local objStr, varName = beginObject(t)
   objStr = objStr..string.format( "\tx = %s,\n", trf[5] )
   objStr = objStr..string.format( "\ty = %s,\n", trf[6] ) 
   objStr = objStr..string.format( "\twidth = %s,\n", wh[1] )
@@ -192,7 +235,7 @@ local function doRect(t)
   objStr = objStr..string.format( "\tstrokeWidth = %s,\n", style["stroke-width"])
   objStr = objStr..string.format( "\tfillColor = {%s},\n", getColorString(t[1].fillColor))
   objStr = objStr..string.format( "\tstrokeColor = {%s},\n", getColorString(t[1].strokeColor))
-  objStr = objStr..endObject(t, varName)
+  objStr = objStr..endObject(t, varName, "newRect")
   return objStr
 end
 
@@ -200,31 +243,35 @@ local function doCircle(t)
   local trf = getTransform(t)
   local style = getStyle(t[2].properties.style)
   
-  local objStr, varName = beginObject(t, "newCircle")
+  local objStr, varName = beginObject(t)
   objStr = objStr..string.format( "\tx = %s,\n", trf[5] )
   objStr = objStr..string.format( "\ty = %s,\n", trf[6] ) 
   objStr = objStr..string.format( "\tradius = %s,\n", t[2].properties.rx )
   objStr = objStr..string.format( "\tstrokeWidth = %s,\n", style["stroke-width"])
   objStr = objStr..string.format( "\tfillColor = {%s},\n", getColorString(t[1].fillColor))
   objStr = objStr..string.format( "\tstrokeColor = {%s},\n", getColorString(t[1].strokeColor))
-  objStr = objStr..endObject(t, varName)
+  objStr = objStr..endObject(t, varName, "newCircle")
   return objStr
 end
 
 local function doText(t)
   local trf = getTransform(t)
   local style = getStyle(t[2].properties.style)
-  
   local fn,fs = getFontParams(style)
   
-  local objStr, varName = beginObject(t, "newText")
+  local aH, aV = getAlignment(t[1].textAlign)
+  
+  local objStr, varName = beginObject(t)
   objStr = objStr..string.format( "\ttext = \"%s\",\n", t[1].label )
   objStr = objStr..string.format( "\tx = %s,\n", trf[5] )
   objStr = objStr..string.format( "\ty = %s,\n", trf[6])
   objStr = objStr..string.format( "\tfont = %s,\n", fn )
   objStr = objStr..string.format( "\tfontSize = %s,\n", fs )
   objStr = objStr..string.format( "\tfillColor = {%s},\n", getColorString(t[1].textColor) )
-  objStr = objStr..endObject(t, varName) 
+  objStr = objStr..string.format("\twidth = %d,\n", t[3].properties.width)
+  objStr = objStr..string.format("\theight = %d,\n", t[3].properties.height)
+  objStr = objStr..string.format("\talign= \"%s\",\n", aH )
+  objStr = objStr..endObject(t, varName, "newText") 
   return objStr
 end
 
@@ -234,7 +281,7 @@ local function doMaterialIcon(t)
   
   local _,fs = getFontParams(style)
   
-  local objStr, varName = beginObject(t, "newMaterialIcon")
+  local objStr, varName = beginObject(t)
   objStr = objStr..string.format( "\ttext = mIcon.get(\"%s\"),\n", t[1].label )
   objStr = objStr..string.format( "\tx = %s,\n", trf[5] )
   objStr = objStr..string.format( "\ty = %s,\n", trf[6])
@@ -243,7 +290,7 @@ local function doMaterialIcon(t)
   objStr = objStr..string.format( "\tfont = %s,\n", "mFont")
   objStr = objStr..string.format( "\tfontSize = %s,\n", fs )
   objStr = objStr..string.format( "\tfillColor = {%s},\n", getColorString(t[1].textColor) )
-  objStr = objStr..endObject(t, varName) 
+  objStr = objStr..endObject(t, varName, "newMaterialIcon") 
   return objStr
 end
 
@@ -257,7 +304,7 @@ local function doButton(t)
   
   local fn,fs = getFontParams(fontStyle)
   
-  local objStr, varName = beginObject(t, "newButton")
+  local objStr, varName = beginObject(t)
   objStr = objStr..string.format("\tlabel = \"%s\",\n", t[1].label)
   objStr = objStr..string.format("\tshape = \"%s\",\n", "roundedRect")
   objStr = objStr..string.format("\tcornerRadius = %s,\n", string.gsub(t[2].rect.rx,"px",""))
@@ -274,7 +321,7 @@ local function doButton(t)
     getColorString(t[1].fillColor), getColorString(t[1].fillOverColor) )
   objStr = objStr..string.format("\tstrokeColor  = { default={%s}, over={%s} },\n",
     getColorString(t[1].strokeColor), getColorString(t[1].strokeOverColor) )
-  objStr = objStr..endObject(t, varName)
+  objStr = objStr..endObject(t, varName, "newButton")
   return objStr
 end
 
@@ -282,12 +329,12 @@ local function doSpinner(t)
   local trf = getTransform(t)
   local wh = t[1].box:split(",")
   
-  local objStr, varName = beginObject(t, "newSpinner")
+  local objStr, varName = beginObject(t)
   objStr = objStr..string.format("\tx = %s,\n", trf[5])
   objStr = objStr..string.format("\ty = %s,\n", trf[6])
   objStr = objStr..string.format("\twidth = %s,\n", wh[1])
   objStr = objStr..string.format("\theight = %s,\n", wh[2])
-  objStr = objStr..endObject(t, varName)
+  objStr = objStr..endObject(t, varName, "newSpinner")
   return objStr
 end
 
@@ -296,13 +343,13 @@ local function doImage(t)
   local img = getImageString(t[1].imageData) 
   table.insert(resourceRef,img[1])
   
-  local objStr, varName = beginObject(t, "newImageRect")
+  local objStr, varName = beginObject(t)
   objStr = objStr..string.format("\timage = \"%s\",\n", img[1])
   objStr = objStr..string.format("\twidth = %s,\n",img[2])
   objStr = objStr..string.format("\theight = %s,\n",img[3])
   objStr = objStr..string.format("\tx = %s,\n",trf[5])
   objStr = objStr..string.format("\ty = %s,\n",trf[6])
-  objStr = objStr..endObject(t, varName)
+  objStr = objStr..endObject(t, varName, "newImageRect")
   return objStr
 end
 
@@ -312,14 +359,14 @@ local function doSwitch(t)
   local wh = t[1].box:split(",")
   local switchStyle = t[1].varType or "onOff"
   
-  local objStr, varName = beginObject(t, "newSwitch")
+  local objStr, varName = beginObject(t)
   objStr = objStr..string.format("\tstyle  = \"%s\",\n", switchStyle)
   objStr = objStr..string.format("\tinitialSwitchState  = %s,\n",t[1].on)
   objStr = objStr..string.format("\tx = %s,\n",trf[5])
   objStr = objStr..string.format("\ty = %s,\n",trf[6])
   objStr = objStr..string.format("\twidth = %s,\n", wh[1])
   objStr = objStr..string.format("\theight = %s,\n", wh[2])
-  objStr = objStr..endObject(t, varName)
+  objStr = objStr..endObject(t, varName, "newSwitch")
   return objStr
 end
 
@@ -334,14 +381,14 @@ local function doSlider(t)
     value = 100 * (1- tonumber(prog[2]) / tonumber(wh[2]))
   end
   
-  local objStr, varName = beginObject(t, "newSlider")
+  local objStr, varName = beginObject(t)
   objStr = objStr..string.format("\tx = %s,\n",trf[5])
   objStr = objStr..string.format("\ty = %s,\n",trf[6])
   objStr = objStr..string.format("\torientation = \"%s\",\n",orientation)
   objStr = objStr..string.format("\tvalue = %d,\n", value )
   objStr = objStr..string.format("\twidth = %s,\n", wh[1])
   objStr = objStr..string.format("\theight = %s,\n", wh[2])
-  objStr = objStr..endObject(t, varName)
+  objStr = objStr..endObject(t, varName, "newSlider")
   return objStr
 end
 
@@ -352,14 +399,14 @@ local function doProgress(t)
   
   local value = tonumber(prog[1]) / tonumber(wh[1])
   
-  local objStr, varName = beginObject(t, "newProgressView")
+  local objStr, varName = beginObject(t)
   objStr = objStr..string.format("\tx = %s,\n",trf[5])
   objStr = objStr..string.format("\ty = %s,\n",trf[6])
   objStr = objStr..string.format("\tprogress = %f,\n", value )
   objStr = objStr..string.format("\tanimated  = %s,\n",t[1].animated)
   objStr = objStr..string.format("\twidth = %s,\n", wh[1])
   objStr = objStr..string.format("\theight = %s,\n", wh[2])
-  objStr = objStr..endObject(t, varName)
+  objStr = objStr..endObject(t, varName, "newProgressView")
   
   return objStr
 end
@@ -391,13 +438,13 @@ local function doTabBar(t)
   end
   butTable = butTable.."\t}\n"
   
-  local objStr, varName = beginObject(t, "newTabBar")
+  local objStr, varName = beginObject(t)
   objStr = objStr..string.format("\tleft = %s,\n",trf[5])
   objStr = objStr..string.format("\ttop = %s,\n",trf[6])
   objStr = objStr..string.format("\twidth = %s,\n", wh[1])
   objStr = objStr..string.format("\theight = %s,\n", wh[2])
   objStr = objStr.."\tbuttons = tabButtons, \n"
-  objStr = objStr..endObject(t, varName)
+  objStr = objStr..endObject(t, varName, "newTabBar")
   
   return butTable..objStr
 end
@@ -425,7 +472,7 @@ local function doGeneric(t)
   local hasOverColors = (t[1].hasOverColors=="true")
   local hasUdfOpt = (t[1].udfOpt=="true")
   
-  local objStr, varName = beginObject(t, "newGenericObject")
+  local objStr, varName = beginObject(t)
   objStr = objStr..string.format("\tgenericType = \"%s\",\n", varType )
   objStr = objStr..string.format("\thasText = %s,\n", tostring(hasText) )
   objStr = objStr..string.format("\thasRect = %s,\n", tostring(hasRect) )
@@ -446,31 +493,19 @@ local function doGeneric(t)
     objStr = objStr..string.format("\talign= \"%s\",\n", ta or "center" )
   end
   
-  if hasOverColors then
-    if hasRect then
-      objStr = objStr..string.format("\tstrokeColor  = { default={%s}, over={%s} },\n",
-          getColorString(t[1].strokeColor), getColorString(t[1].strokeOverColor) )
-      objStr = objStr..string.format("\tfillColor = { default={%s}, over={%s} },\n",
-          getColorString(t[1].fillColor), getColorString(t[1].fillOverColor) )
-    end
-    if hasText then
-      objStr = objStr..string.format("\ttextColor  = { default={%s}, over={%s} },\n",
-          getColorString(t[1].textColor), getColorString(t[1].textOverColor) )
-    end
-  else
-    if hasRect then
-      objStr = objStr..string.format("\tfillColor = { %s},\n", getColorString(t[1].fillColor) )
-      objStr = objStr..string.format("\tstrokeColor = { %s},\n", getColorString(t[1].strokeColor) )
-    end
-    if hasText then
-      objStr = objStr..string.format("\ttextColor = { %s},\n", getColorString(t[1].textColor) )
-    end
+  if hasRect then
+    objStr = objStr..string.format("\tfillColor = { %s},\n", getColorString(t[1].fillColor) )
+    objStr = objStr..string.format("\tstrokeColor = { %s},\n", getColorString(t[1].strokeColor) )
   end
+  if hasText then
+    objStr = objStr..string.format("\ttextColor = { %s},\n", getColorString(t[1].textColor) )
+  end
+
   if hasUdfOpt then
     -- TODO parse for test
     objStr = objStr..string.format("\t%s\n", t[1].udfOptions)
   end
-  objStr = objStr..endObject(t, varName)
+  objStr = objStr..endObject(t, varName, "newGenericObject")
   
   return objStr
 end

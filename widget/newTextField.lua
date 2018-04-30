@@ -1,19 +1,19 @@
 local newTextField = function(opt)
   
-  local group = display.newGroup()
-  
   -- input field background
   if opt.hasRect then 
+    _=[[
     local inputBackground = display.newRect(  
       opt.x, 
       opt.y,
       opt.width, 
       opt.height
     )
+    inputBackground.id = opt.id
     inputBackground:setFillColor( unpack(opt.fillColor) )
     inputBackground:setStrokeColor( unpack(opt.strokeColor) )
     inputBackground.strokeWidth = opt.strokeWidth
-    group:insert( inputBackground )
+    ]]
   end
   
   -- native.textfield
@@ -34,9 +34,7 @@ local newTextField = function(opt)
   
   textField:setTextColor(unpack(opt.textColor))
   
-  group:insert( textField )
-  
-  return group
+  return textField, inputBackground
 end
 
 return newTextField
