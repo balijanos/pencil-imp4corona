@@ -117,7 +117,7 @@ To access object just use the assigned Corona variable name on the Pencil interf
   sceneObjects["My_Spinner"]:start()
 ```
 
-The generated scene can be modified freely. At show/hide processes native objects will be automatically handled.
+The generated scene can be modified freely. At the scene show/hide processes native objects will be automatically handled.
 ```
 function scene:show(event)
   local sceneGroup = self.view
