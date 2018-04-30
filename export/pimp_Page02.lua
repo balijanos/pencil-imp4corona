@@ -113,7 +113,7 @@ function m.getSceneObjects(event,sceneGroup)
 	isVisible = true,
 	text = "Thank you!",
 	x = 0,
-	y = 500,
+	y = 180,
 	font = native.systemFontBold,
 	fontSize = 28,
 	fillColor = {0.8,0.2,0.8,0.92941176470588},
@@ -134,12 +134,33 @@ function m.getSceneObjects(event,sceneGroup)
 	width = 468,
 	height = 336,
 	x = 132,
-	y = 600,
+	y = 216,
 	sceneGroup = sceneGroup,
 	reference = nil,
 	}
 	obj = pimpCore.newImageRect (objectOptions["My_Image"])
 	sceneObjects["My_Image"] = obj
+	obj.isVisible = true
+
+	objectOptions["My_WebView"] = {
+	id = "My_WebView",
+	isVisible = true,
+	genericType = "newWebView",
+	hasText = false,
+	hasRect = false,
+	hasOverColors = false,
+	x = 0,
+	y = 585,
+	width = 720,
+	height = 695.7031250000001,
+	urlRequest="https://coronalabs.com/blog",
+canGoForward = true,
+canGoBack = true,
+	sceneGroup = sceneGroup,
+	reference = nil,
+	}
+	obj = pimpCore.newGenericObject (objectOptions["My_WebView"])
+	sceneObjects["My_WebView"] = obj
 	obj.isVisible = true
 
   return sceneObjects
