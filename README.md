@@ -1,7 +1,7 @@
 # pencil-imp4corona v1.1
 Pencil UI design importer and scene generator for Corona Sdk
 
-![shell](./pencil_sshots/Screenshot_phone_small.png)
+![shell](./pencil_sshots/pencil_design.png)
 
 ## Supported widgets
 Implemented elements:
