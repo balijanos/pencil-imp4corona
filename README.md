@@ -139,9 +139,9 @@ end
 
 * Drag and drop selected UI element from the 'Corona Sdk Shapes' collection on to the layout.
 * To set properties of the object you can use the 'Properties panel' on the right, or the layout panel on the top.
-* Right click on the object if you want set additional parameters ( visibility, pageLink, image content etc.)
+* Right click on the object if you want set additional parameters ( visibility, pageLink, image content etc.) at context menu.
 
-### Special features Corona sdk
+### Special features for Corona sdk
 * If 'Link to' options selected from the popup menu, it will be implemented as composer.gotoScene( pageName ) command.
 * To assign content to an image object use the 'Action/Load linked image...' option from the popup menu. The image will separately exported to the 'refs' folder and used automatically at runtime.
 * Generic object has special flags to control which parameters can be used by importer/generator code.
