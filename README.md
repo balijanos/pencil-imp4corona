@@ -1,4 +1,4 @@
-# pencil-imp4corona v1.1
+# pencil-imp4corona v1.2
 Pencil UI design importer and scene generator for Corona Sdk
 
 ![shell](./pencil_sshots/pencil_design.png)
@@ -29,6 +29,12 @@ Native objects (Generic Objects)
 * MapView
 
 
+## Additional features
+
+* multilanguage support (see dictionary.json)
+* extra font support (see pimp/pfont.lua)
+
+
 ## Installing Corona Sdk stencils for Evolus Pencil
 Download the latest version (3.0.4) for [Pencil](https://pencil.evolus.vn/)
 * Select "Tools/Manage Collections" from menu. 
@@ -48,7 +54,8 @@ To change the current configuration modify the `main.lua` file
 main.lua:
 ```
 local importFile = "epz/scene_test.epz"
-local exportDir = "export" 
+local exportDir = "testapp" 
+local prefix = "testapp"
 display.setDefault( "background", 1,1,1,1 )	
 ```
 
@@ -58,25 +65,16 @@ The program will export generated files to `exportDir`. After generation finshed
 ```
 local function pimpDone(prjName, startPage)
   pimpCore.setDir(exportDir)
+  pimpCore.setPrefix(prefix)
   composer.gotoScene(exportDir.."."..startPage)
 end
-pimp.import(importFile, exportDir, pimpDone)
+pimp.import(importFile, exportDir, prefix, pimpDone)
 ```
-If you want make the release from imported and generated files, you can do it simple.
-```
-local composer = require "composer"
-local pimpCore = require "pimp.pimpCore"
 
--- directory of generated files
-pimpCore.setDir("myapp")
-	
--- start a scene
-composer.gotoScene("myapp.AppMenu")	
-```
 ## Modifying exported files
 After the first execution the export directory will be created and filled with sources generated prom page layouts.
 ```
-export\
+testapp\
   FirstPage.lua
   pimp_FirstPage.lua
   SecondPage.lua
@@ -95,7 +93,7 @@ The files staring with 'pimp_' are core UI desing container files and always wil
 ## Using generated Corona scenes
 Generated scene template is very simple:
 ```
-local pimp = require "export.pimp_Page01"
+local pimp = require "testapp.pimp_Page01"
 local pimpCore = require "pimp.pimpCore"
 local composer = require "composer"
 local scene = composer.newScene()

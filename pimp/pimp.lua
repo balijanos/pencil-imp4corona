@@ -2,11 +2,11 @@
 -- Pimp parser
 -- ====================================================================
 --
--- (c) 2018, IT-Gears.hu
+-- (c) 2018-19, IT-Gears.hu
 -- 
 -- Author: Janos Bali
 --
--- version v1.1
+-- version v1.2
 --
 local zip = require "plugin.zip"
 local lfs = require "lfs"
@@ -22,6 +22,7 @@ local files, dirs
 
 local pimpDoneCallback
 local pimpExportDir
+local prefix
 
 local function getProperty(p, propName, propValue)
   local props = {}
@@ -122,7 +123,7 @@ local function processZip(event)
       page["content"] = props
       pages[n] = page
     end
-    makePages(pages,projectName,pimpExportDir,tmpDir)
+    makePages(pages,projectName,pimpExportDir,tmpDir,prefix)
     
     if type(pimpDoneCallback)=="function" then
       pimpDoneCallback(projectName, startPage)
@@ -142,8 +143,9 @@ local unzipOptions = {
 
 local M = {}
 
-function M.import(fileName, outDir, pdc)
+function M.import(fileName, outDir, appPrefix, pdc)
   pimpExportDir = outDir or "export"
+  prefix = appPrefix
   pimpDoneCallback = pdc or function() end
   zipFile = fileName
   unzipOptions.zipFile = zipFile

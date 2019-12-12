@@ -1,24 +1,24 @@
--- pimpCore.lua
+-- pimp.core.lua
 --*********************************************************************************************
 --
 -- ====================================================================
 -- Core functions for Pencil imported pages
 -- ====================================================================
 --
--- File: pimpCore.lua
+-- File: pimp.core.lua
 --
--- (c) 2018, IT-Gears.hu
+-- (c) 2018-19, IT-Gears.hu
 -- 
 -- Author: Janos Bali
 --
--- Version 1.1
+-- Version 1.2
 --
 --*********************************************************************************************
 local widget = require "widget" 
 local composer = require "composer"
+local json = require "json"
 
-mFont = "icon-font/MaterialIcons-Regular.ttf"
-mIcon = require("icon-font.codepoints")
+mIcon = require "fonts.codepoints"
 
 local function optCopy(orig)
     local orig_type = type(orig)
@@ -36,25 +36,50 @@ end
 
 local cbPencilCore = {}
 
-local pimpDir = ""
+local pimpDir
+
+cbPencilCore.copy = optCopy
 
 function cbPencilCore.setDir(dirName)
   pimpDir = dirName
 end
 
+local appPrefix = ""
+
+function cbPencilCore.setPrefix(prefix)
+  appPrefix = prefix.."/"
+end
+
+-- ***************************************************************************************** --
+
 function cbPencilCore.newRect(options)
   local obj
   local opt = optCopy(options)
   if opt.cornerRadius == 0 then
-    obj = display.newRect(opt.x + opt.width/2, opt.y + opt.height/2, opt.width, opt.height)
+    -- obj = display.newRect(opt.x + opt.width/2, opt.y + opt.height/2, opt.width, opt.height)
+    obj = display.newRect(opt.x, opt.y, opt.width, opt.height)
   else
-    obj = display.newRoundedRect(opt.x + opt.width/2, opt.y + opt.height/2, opt.width, opt.height, opt.cornerRadius)
+    -- obj = display.newRoundedRect(opt.x + opt.width/2, opt.y + opt.height/2, opt.width, opt.height, opt.cornerRadius)
+    obj = display.newRoundedRect(opt.x, opt.y, opt.width, opt.height, opt.cornerRadius)
   end
+  obj.anchorX = 0
+  obj.anchorY = 0
   obj.strokeWidth = opt.strokeWidth
   obj:setFillColor(unpack(opt.fillColor))
   obj:setStrokeColor(unpack(opt.strokeColor))
   if opt.sceneGroup then
     opt.sceneGroup:insert(obj)
+  end
+  if opt.reference then
+    obj.isHitTestable = true
+    obj:addEventListener("touch",
+      function(event)
+        if event.phase=="ended" then
+          composer.gotoScene(opt.reference)
+        end
+        return true
+      end
+    )
   end
   return obj
 end
@@ -75,12 +100,45 @@ end
 function cbPencilCore.newText(options)
   local obj
   local opt = optCopy(options)
+  
   obj = display.newText(opt)
-  obj.x = obj.x + obj.width/2
-  obj.y = obj.y + obj.height/2
+  obj.x = opt.x
+  obj.y = opt.y
+  obj.anchorX = 0
+  obj.anchorY = 0
+  
+  if opt.align=="left" then
+    obj.anchorX = 0
+  elseif opt.align=="center" then
+    obj.anchorX = 0.5
+    obj.x = opt.x + opt.width/2
+  elseif opt.align=="right" then
+    obj.anchorX = 1
+    obj.x = opt.x + opt.width
+  end
+ 
+  if opt.valign=="top" then
+    obj.anchorY = 0
+  elseif opt.valign=="middle" then
+    obj.anchorY = 0
+    obj.y = opt.y + opt.height/2 - opt.fontSize/2
+  elseif opt.valign=="bottom" then
+    obj.anchorY = 1
+  end
+  
   obj:setFillColor(unpack(opt.fillColor))
   if opt.sceneGroup then
     opt.sceneGroup:insert(obj)
+  end
+  if opt.reference then
+    obj:addEventListener("touch",
+      function(event)
+        if event.phase=="ended" then
+          composer.gotoScene(opt.reference)
+        end
+        return true
+      end
+    )
   end
   return obj
 end
@@ -90,7 +148,9 @@ function cbPencilCore.newMaterialIcon(options)
   local opt = optCopy(options)
   obj = display.newText(opt)
   obj.x = obj.x + obj.width/2
-  obj.y = obj.y + obj.height/2
+  obj.y = obj.y -- + obj.height/2
+  obj.anchorX = 0.5
+  obj.anchorY = 0.125
   obj:setFillColor(unpack(opt.fillColor))
   if opt.sceneGroup then
     opt.sceneGroup:insert(obj)
@@ -99,7 +159,7 @@ function cbPencilCore.newMaterialIcon(options)
     obj:addEventListener("touch",
       function(event)
         if event.phase=="ended" then
-          composer.gotoScene(pimpDir.."."..opt.reference)
+          composer.gotoScene(opt.reference)
         end
         return true
       end
@@ -121,7 +181,7 @@ function cbPencilCore.newButton(options)
     obj:addEventListener("touch",
       function(event)
         if event.phase=="ended" then
-          composer.gotoScene( pimpDir.."."..opt.reference)
+          composer.gotoScene( opt.reference)
         end
         return true
       end
@@ -145,12 +205,24 @@ end
 function cbPencilCore.newImageRect(options)
   local obj
   local opt = optCopy(options)
-  opt.image = pimpDir.."/"..opt.image
+  opt.image = appPrefix.."refimages/"..opt.image
   obj = display.newImageRect(opt.image,system.ResourceDirectory,opt.width,opt.height)
-  obj.x = opt.x + opt.width/2
-  obj.y = opt.y + opt.height/2
+  obj.x = opt.x
+  obj.y = opt.y
+  obj.anchorX = 0
+  obj.anchorY = 0
   if opt.sceneGroup then
     opt.sceneGroup:insert(obj)
+  end
+  if opt.reference then
+    obj:addEventListener("touch",
+      function(event)
+        if event.phase=="ended" then
+          composer.gotoScene( opt.reference)
+        end
+        return true
+      end
+    )
   end
   return obj
 end
@@ -159,8 +231,10 @@ function cbPencilCore.newSwitch(options)
   local obj
   local opt = optCopy(options)
   opt.x = opt.x + opt.width/2
-  opt.y = opt.y + opt.height/2
+  opt.y = opt.y -- + opt.height/2
   obj = widget.newSwitch(opt)
+  obj.anchorX = 0.5
+  obj.anchorY = 0
   if opt.sceneGroup then
     opt.sceneGroup:insert(obj)
   end
@@ -206,10 +280,10 @@ end
 
 -- Generic widgets handlers
 local genericWidgets = {
-  ["newTextField"] = "widget.newTextField",
-  ["newTextBox"] = "widget.newTextBox",
-  ["newWebView"] = "widget.newWebView",
-  ["newMapView"] = "widget.newMapView",
+  ["newTextField"] = "pimp.widget.newTextField",
+  ["newTextBox"]   = "pimp.widget.newTextBox",
+  ["newWebView"]   = "pimp.widget.newWebView",
+  ["newMapView"]   = "pimp.widget.newMapView",
 }
 
 function cbPencilCore.newGenericObject(options)
@@ -229,22 +303,37 @@ end
 
 -- native show/hide
 function cbPencilCore.showNativeObjects(sceneObjects,objectOptions)
-  for o,opt in pairs(objectOptions) do
-    if opt.genericType then
-      sceneObjects[o].isVisible = objectOptions[o].isVisible
+  if objectOptions then
+    for o,opt in pairs(objectOptions) do
+      if opt.genericType then
+        sceneObjects[o].isVisible = objectOptions[o].isVisible
+      end
     end
   end
 end
 
 function cbPencilCore.hideNativeObjects(sceneObjects,objectOptions)
   local any
-  for o,opt in pairs(objectOptions) do
-    if opt.genericType then
-      sceneObjects[o].isVisible = false
-      any = true
+  if objectOptions then
+    for o,opt in pairs(objectOptions) do
+      if opt.genericType then
+        sceneObjects[o].isVisible = false
+        any = true
+      end
+    end
+    if any then native.setKeyboardFocus(nil) end
+  end
+end
+
+function cbPencilCore.destroyNativeObjects(sceneObjects,objectOptions)
+  if objectOptions then
+    for o,opt in pairs(objectOptions) do
+      if opt.genericType and opt.removeSelf then
+        sceneObjects[o]:removeSelf()
+        sceneObjects[o] = nil
+      end
     end
   end
-  if any then native.setKeyboardFocus(nil) end
 end
 
 return cbPencilCore

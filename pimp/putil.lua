@@ -8,6 +8,9 @@
 -- @tparam string src  Source filename.
 -- @tparam string dst  Destination filename.
 -- @tparam number? blocksize  Size of read blocks. Default is 1M.
+
+local json = require "json"
+
 function copyfile(src, dst, blocksize)
 	blocksize = blocksize or 1024*1024
 	local sf, df, err
@@ -57,6 +60,33 @@ function os.fileExists(fileName, filePath)
 	end
 end
 
+function table.load( filename, location )
+ 
+    local loc = location
+    if not location then
+        loc = appDataPath
+    end
+ 
+    -- Path for the file to read
+    local path = system.pathForFile( filename, loc )
+ 
+    -- Open the file handle
+    local file, errorString = io.open( path, "r" )
+ 
+    if not file then
+        -- Error occurred; output the cause
+        print( "File error: " .. errorString )
+    else
+        -- Read data from file
+        local contents = file:read( "*a" )
+        -- Decode JSON data into Lua table
+        local t = json.decode( contents )
+        -- Close the file handle
+        io.close( file )
+        -- Return table
+        return t
+    end
+end
 
 function table.print_r ( t ) 
     local print_r_cache={}

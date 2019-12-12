@@ -12,7 +12,9 @@ local newWebView = function(opt)
   webView.canGoBack = opt.canGoBack or false
   webView.canGoForward = opt.canGoForward or false
   
-  webView:request(opt.urlRequest, opt.localDirectory)
+  
+  
+  -- webView:request(opt.urlRequest, opt.localDirectory)
   
   return webView
 end
